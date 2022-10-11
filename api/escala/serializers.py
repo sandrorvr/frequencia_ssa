@@ -19,6 +19,5 @@ class EscalaSerializers(serializers.ModelSerializer):
         'zone'
         )
 
-class MachSerializers(serializers.Serializer):
-    date = serializers.DateField()
-    road = serializers.CharField(max_length=20)
+class WorkersSerializers(serializers.Serializer):
+    worker = serializers.CharField(max_length=120)

@@ -3,11 +3,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .models import Escala
-from .serializers import EscalaSerializers, MachSerializers
+from .serializers import EscalaSerializers, WorkersSerializers
 
 import numpy as np
 
-class matchWorker:
+class MatchWorker:
     def __init__(self, worker):
         self.worker = worker
         self.sizeMatch = None
@@ -22,7 +22,6 @@ class matchWorker:
         self.sizeMatch = len(date)
         return (date, road)
 
-    @staticmethod
     def flaten(self, vet):
         vet_aux = []
         for sublist in vet:
@@ -35,31 +34,29 @@ class matchWorker:
         dates, roads = self.get_date_road()
         for i in range(self.sizeMatch):
             filtered = Escala.objects.filter(date=dates[i], road=roads[i]).exclude(worker=self.worker)
-            serializer = EscalaSerializers(filtered, many=True)
-            workersMach.append(serializer.data)
+            workersMach.append(filtered)
         return workersMach
+
+    def match_to_serializer(self):
+        wks_serializers = []
+        workersMach = self.get_match()
+        for wks in workersMach:
+            serializer = EscalaSerializers(wks, many=True)
+            wks_serializers.append(serializer.data)
+
+        wks_sz = self.flaten(wks_serializers)
+        print(wks_sz)
+        return wks_sz
 
 class EscalaAPIView(APIView):
     def get(self, request, worker):
-        fullWorker = Escala.objects.filter(worker=worker)
-        setDate = []
-        setRoad = []
-        for wk in fullWorker:
-            setDate.append(wk.date)
-            setRoad.append(wk.road)
+        return Response(MatchWorker(worker).match_to_serializer())
 
-        workersMach = []
-        for i in range(len(setDate)):
-            filtered = Escala.objects.filter(date=setDate[i], road=setRoad[i]).exclude(worker=worker)
-            serializer = EscalaSerializers(filtered, many=True)
-            workersMach.append(serializer.data)
-
-        _workersMach = []
-        for sublist in workersMach:
-            for item in sublist:
-                _workersMach.append(item)
-
-        return Response(_workersMach)
-
-class workers(APIView):
+class WorkersAPIView(APIView):
     def get(self, request, worker):
+        matchWorker = MatchWorker(worker)
+        matchWorkerMatch= matchWorker.get_match()
+        workersName = []
+        for wk in matchWorkerMatch:
+            workersName.append(WorkersSerializers(wk, many=True).data)
+        return Response(matchWorker.flaten(workersName))
