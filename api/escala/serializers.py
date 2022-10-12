@@ -20,4 +20,4 @@ class EscalaSerializers(serializers.ModelSerializer):
         )
 
 class WorkersSerializers(serializers.Serializer):
-    worker = serializers.CharField(max_length=120)
+    worker = serializers.ListField(child = serializers.CharField(max_length=120))

@@ -1,4 +1,3 @@
-from datetime import date
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -52,11 +51,19 @@ class EscalaAPIView(APIView):
     def get(self, request, worker):
         return Response(MatchWorker(worker).match_to_serializer())
 
+class Workers:
+    worker = ['x','x']
+
 class WorkersAPIView(APIView):
     def get(self, request, worker):
         matchWorker = MatchWorker(worker)
         matchWorkerMatch= matchWorker.get_match()
-        workersName = []
-        for wk in matchWorkerMatch:
-            workersName.append(WorkersSerializers(wk, many=True).data)
-        return Response(matchWorker.flaten(workersName))
+        workersName = set()
+        for wks in matchWorkerMatch:
+            for wk in wks:
+                workersName.add(wk.worker)
+        
+        wksz = Workers()
+        return Response(WorkersSerializers({'worker':workersName}).data)
+
+        
