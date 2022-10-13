@@ -51,8 +51,6 @@ class EscalaAPIView(APIView):
     def get(self, request, worker):
         return Response(MatchWorker(worker).match_to_serializer())
 
-class Workers:
-    worker = ['x','x']
 
 class WorkersAPIView(APIView):
     def get(self, request, worker):
@@ -62,8 +60,10 @@ class WorkersAPIView(APIView):
         for wks in matchWorkerMatch:
             for wk in wks:
                 workersName.add(wk.worker)
-        
-        wksz = Workers()
-        return Response(WorkersSerializers({'worker':workersName}).data)
+        workers = WorkersSerializers({'workers':workersName})
+        return Response(workers.data)
+
+
+
 
         
